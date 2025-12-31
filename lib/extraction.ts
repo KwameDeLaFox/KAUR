@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import pdf = require('pdf-parse');
+import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { FileRecord } from './actions';
 
