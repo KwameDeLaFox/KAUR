@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import pdf from 'pdf-parse';
+import * as pdfImport from 'pdf-parse';
 import mammoth from 'mammoth';
 import { FileRecord } from './actions';
+
+// Handle potentially missing default export in CJS/ESM interop
+const pdf = (pdfImport as any).default || pdfImport;
 
 export async function extractText(file: FileRecord): Promise<string> {
     const fullPath = path.join(process.cwd(), file.path);
