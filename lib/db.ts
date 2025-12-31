@@ -2,14 +2,19 @@ import Database from 'better-sqlite3';
 import path from 'node:path';
 import fs from 'node:fs';
 
-const DATA_PATH = process.env.DATA_PATH || process.cwd();
-const dbPath = path.join(DATA_PATH, 'ura.db');
+let actualDataPath = process.env.DATA_PATH || process.cwd();
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_PATH)) {
-  fs.mkdirSync(DATA_PATH, { recursive: true });
+// Ensure data directory exists with build-time resilience
+try {
+  if (!fs.existsSync(actualDataPath)) {
+    fs.mkdirSync(actualDataPath, { recursive: true });
+  }
+} catch (e) {
+  console.warn(`[Build Warning] Could not create DATA_PATH at ${actualDataPath}. Falling back to local directory for build phase.`);
+  actualDataPath = process.cwd();
 }
 
+const dbPath = path.join(actualDataPath, 'ura.db');
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 
