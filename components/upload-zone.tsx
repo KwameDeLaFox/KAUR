@@ -3,7 +3,6 @@
 import { useCallback, useState } from 'react'
 import { UploadCloud, File, Loader2 } from 'lucide-react'
 import { uploadFile } from '@/lib/actions'
-import { useDropzone } from 'react-dropzone' // Wait, I need to install this library first or implement native D&D. Implementing native D&D to avoid extra dep for now as per "Minimal Dependencies" req.
 
 export function UploadZone({ projectId }: { projectId: number }) {
     const [isDragActive, setIsDragActive] = useState(false)
