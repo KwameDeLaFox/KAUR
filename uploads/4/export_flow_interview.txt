@@ -1,0 +1,5 @@
+
+INTERVIEWER: How do you usually export your reports?
+PARTICIPANT: I usually take a screenshot.
+INTERVIEWER: You don't use the PDF export?
+PARTICIPANT: I didn't know it existed! The button is hidden in the settings menu. It should be on the main chart area.

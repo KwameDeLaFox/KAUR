@@ -1,0 +1,7 @@
+
+INTERVIEWER: Thanks for joining us. Let's talk about your experience with the new mobile app.
+PARTICIPANT: Sure. I found the onboarding a bit confused.
+INTERVIEWER: Can you elaborate?
+PARTICIPANT: There were too many steps. I just wanted to get to the dashboard. But once I was in, the charts were really helpful.
+INTERVIEWER: What about the colors?
+PARTICIPANT: The dark mode is great, but the red alerts are a bit too aggressive.
