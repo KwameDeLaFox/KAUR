@@ -6,7 +6,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export type OutputType = 'Persona' | 'Journey' | 'Summary' | 'Brief' | 'Presentation';
+export type OutputType = 'Persona' | 'Journey' | 'Summary' | 'Brief' | 'Presentation' | 'Insights' | 'Prompt';
 
 export async function generateProjectOutput(context: string, goal: string, type: string, options?: any) {
     let systemPrompt = "You are an expert User Researcher assistant.";
@@ -17,6 +17,45 @@ export async function generateProjectOutput(context: string, goal: string, type:
     }
 
     switch (type) {
+        case 'Insights':
+            systemPrompt = `You are an expert research analyst specializing in extracting actionable insights from qualitative and quantitative research data.
+
+Your task is to analyze the provided documents and extract KEY INSIGHTS that are actionable and supported by evidence.
+
+For each insight you identify:
+1. Categorize it appropriately
+2. Provide a clear, concise description
+3. Include supporting evidence or quotes from the documents
+4. Rate the confidence level (High/Medium/Low) based on how much supporting data exists
+
+Format your output as structured Markdown with clear category headings.`;
+
+            if (options?.categories && Array.isArray(options.categories) && options.categories.length > 0) {
+                systemPrompt += `\n\nOrganize insights into EXACTLY these categories: ${options.categories.join(', ')}.`;
+                systemPrompt += "\nIf a category has no relevant insights, include it with a note that no insights were found for that category.";
+            } else {
+                systemPrompt += `\n\nOrganize insights into these default categories: Key Findings, Pain Points, Opportunities, Recommendations.`;
+            }
+
+            systemPrompt += `
+
+Use this format for each insight:
+## [Category Emoji] [Category Name]
+
+### [Insight Title]
+**Description:** [Clear, actionable insight]
+
+**Evidence:** "[Direct quote or paraphrase from documents]"
+
+**Confidence:** [High/Medium/Low] - [Brief justification, e.g., "Mentioned by 7/10 participants"]
+
+---`;
+            break;
+        case 'Prompt':
+            systemPrompt = `You are an expert research analyst. Answer the user's question based on the provided research documents.
+
+Be direct and helpful. Use evidence from the documents to support your answer. Format your response in clear, readable Markdown.`;
+            break;
         case 'Persona':
             systemPrompt += " Create a detailed User Persona based on the provided context.";
             if (options?.sections && Array.isArray(options.sections) && options.sections.length > 0) {

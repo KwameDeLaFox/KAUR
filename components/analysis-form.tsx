@@ -43,6 +43,12 @@ export function AnalysisForm({ projectId }: { projectId: number }) {
     ]);
     const [customSlide, setCustomSlide] = useState("");
 
+    // Insights Config State
+    const [insightCategories, setInsightCategories] = useState<string[]>([
+        "Key Findings", "Pain Points", "Opportunities", "Recommendations"
+    ]);
+    const [customInsightCategory, setCustomInsightCategory] = useState("");
+
     const toggleSection = (section: string) => {
         if (selectedSections.includes(section)) {
             setSelectedSections(selectedSections.filter(s => s !== section));
@@ -88,6 +94,21 @@ export function AnalysisForm({ projectId }: { projectId: number }) {
         }
     };
 
+    const toggleInsightCategory = (category: string) => {
+        if (insightCategories.includes(category)) {
+            setInsightCategories(insightCategories.filter(c => c !== category));
+        } else {
+            setInsightCategories([...insightCategories, category]);
+        }
+    };
+
+    const addCustomInsightCategory = () => {
+        if (customInsightCategory.trim() && !insightCategories.includes(customInsightCategory.trim())) {
+            setInsightCategories([...insightCategories, customInsightCategory.trim()]);
+            setCustomInsightCategory("");
+        }
+    };
+
     async function handleGenerate() {
         setLoading(true)
         setError(null)
@@ -102,7 +123,7 @@ export function AnalysisForm({ projectId }: { projectId: number }) {
                     type === 'Journey' ? {
                         sections: journeySections,
                         stages: journeyStages ? journeyStages.split(',').map(s => s.trim()) : undefined
-                    } : {};
+                    } : type === 'Insights' ? { categories: insightCategories } : {};
                 const output = await generateInsight(projectId, goal, type, options)
                 setResult(output)
             }
@@ -147,9 +168,11 @@ export function AnalysisForm({ projectId }: { projectId: number }) {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="Summary">Summary</SelectItem>
+                            <SelectItem value="Prompt">Prompt</SelectItem>
                             <SelectItem value="Persona">User Persona</SelectItem>
                             <SelectItem value="Journey">User Journey Map</SelectItem>
                             <SelectItem value="Brief">Research Brief</SelectItem>
+                            <SelectItem value="Insights">Document Insights</SelectItem>
                             <SelectItem value="Presentation">Presentation Deck</SelectItem>
                         </SelectContent>
                     </Select>
@@ -304,6 +327,74 @@ export function AnalysisForm({ projectId }: { projectId: number }) {
                                     AI will map research data to your custom swimlanes.
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {type === 'Insights' && (
+                    <div className="p-4 border rounded-md bg-muted/20 space-y-3">
+                        <Label>Insights Configuration</Label>
+                        <p className="text-sm text-muted-foreground">Select which categories of insights to extract from your documents:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            {[
+                                "Key Findings", "Pain Points", "Opportunities", "Recommendations",
+                                "Trends", "Risks", "User Needs", "Behavioral Patterns",
+                                "Competitive Insights", "Feature Requests"
+                            ].map(category => (
+                                <div key={category} className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id={`insight-${category}`}
+                                        checked={insightCategories.includes(category)}
+                                        onChange={() => toggleInsightCategory(category)}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <label htmlFor={`insight-${category}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                        {category}
+                                    </label>
+                                </div>
+                            ))}
+                            {/* Custom categories */}
+                            {insightCategories.filter(c => ![
+                                "Key Findings", "Pain Points", "Opportunities", "Recommendations",
+                                "Trends", "Risks", "User Needs", "Behavioral Patterns",
+                                "Competitive Insights", "Feature Requests"
+                            ].includes(c)).map(category => (
+                                <div key={`insight-${category}`} className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id={`insight-${category}`}
+                                        checked={true}
+                                        onChange={() => toggleInsightCategory(category)}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <label htmlFor={`insight-${category}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                        {category} (Custom)
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex gap-2">
+                                <input
+                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    placeholder="Add custom insight category..."
+                                    value={customInsightCategory}
+                                    onChange={(e) => setCustomInsightCategory(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            addCustomInsightCategory();
+                                        }
+                                    }}
+                                />
+                                <Button size="sm" variant="secondary" onClick={addCustomInsightCategory} type="button">
+                                    +
+                                </Button>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                                Each insight includes evidence from your documents and a confidence rating.
+                            </p>
                         </div>
                     </div>
                 )}
