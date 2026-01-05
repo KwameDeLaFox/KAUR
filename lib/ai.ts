@@ -1,10 +1,20 @@
 
 import OpenAI from 'openai';
 
-// NOTE: This will fail if env var is missing, handled in UI via Error Boundary or Try/Catch
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-load OpenAI client to avoid build-time errors when env var isn't set
+let openaiClient: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+    if (!openaiClient) {
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY environment variable is not set');
+        }
+        openaiClient = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+    }
+    return openaiClient;
+}
 
 export type OutputType = 'Persona' | 'Journey' | 'Summary' | 'Brief' | 'Presentation' | 'Insights' | 'Prompt';
 
@@ -123,7 +133,7 @@ Be direct and helpful. Use evidence from the documents to support your answer. F
     ${context}
     `;
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
         model: "gpt-4o", // Defaulting to 4o for best results, can fallback
         messages: [
             { role: "system", content: systemPrompt },
